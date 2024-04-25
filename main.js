@@ -10,11 +10,11 @@ export const setupDB = (dbName, autoIncrementId = false) => {
 };
 
 export const insert = (table, attributes, autoIncrementId = false) => {
-  autoIncrementId = Boolean(autoIncrementId); // Ensure autoIncrementId is a boolean
+  autoIncrementId = Boolean(autoIncrementId);
 
   if (autoIncrementId || autoIncrement) {
     const lastId = getLastId(table);
-    attributes.id = lastId ? lastId + 1 : 1; // If lastId exists, increment it. Otherwise, start at 1.
+    attributes.id = lastId ? lastId + 1 : 1;
   }
 
   const keys = Object.keys(attributes).join(", ");
