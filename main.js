@@ -1,22 +1,8 @@
 import { Database } from "bun:sqlite";
 
-let db;
+export const db = new Database("db.sqlite", { create: true });
 
-let autoIncrement;
-
-export const setupDB = (dbName, autoIncrementId = false) => {
-  db = new Database(dbName, { create: true });
-  autoIncrement = autoIncrementId;
-};
-
-export const insert = (table, attributes, autoIncrementId = false) => {
-  autoIncrementId = Boolean(autoIncrementId);
-
-  if (autoIncrementId || autoIncrement) {
-    const lastId = getLastId(table);
-    attributes.id = lastId ? lastId + 1 : 1;
-  }
-
+export const insert = async (table, attributes) => {
   const keys = Object.keys(attributes).join(", ");
   const values = Object.values(attributes);
   const placeholders = values.map(() => "?").join(", ");
@@ -26,15 +12,17 @@ export const insert = (table, attributes, autoIncrementId = false) => {
   );
 };
 
-export const createTable = (name, attributes) =>
-  db.query(`CREATE TABLE IF NOT EXISTS ${name} (${attributes})`).run();
+export const createTable = async (name, attributes) => {
+  const attributesStr = Object.entries(attributes)
+    .map(([key, value]) => `${key} ${value}`)
+    .join(", ");
 
-export const getLastId = (table) => {
-  const row = db.query(`SELECT MAX(id) as maxId FROM ${table}`).get();
-  return row.maxId;
+  const query = `CREATE TABLE IF NOT EXISTS ${name} (${attributesStr})`;
+  console.log(query);
+  await db.query(query).run();
 };
 
-export const remove = (table, attributes) => {
+export const remove = async (table, attributes) => {
   const keys = Object.keys(attributes);
   const values = Object.values(attributes);
   const conditions = keys.map((key) => `${key} = ?`).join(" AND ");
@@ -42,7 +30,7 @@ export const remove = (table, attributes) => {
   db.query(`DELETE FROM ${table} WHERE ${conditions}`).run(...values);
 };
 
-export const select = (table, attributes) => {
+export const select = async (table, attributes) => {
   const keys = Object.keys(attributes);
   const values = Object.values(attributes);
   const conditions = keys.map((key) => `${key} = ?`).join(" AND ");
@@ -53,13 +41,13 @@ export const select = (table, attributes) => {
   return result.length === 1 ? result[0] : result;
 };
 
-export const update = (table, searchAttributes, newValues) => {
-  const searchKeys = Object.keys(searchAttributes);
-  const searchValues = Object.values(searchAttributes);
+export const update = async (table, whereAttributes, attributes) => {
+  const searchKeys = Object.keys(whereAttributes);
+  const searchValues = Object.values(whereAttributes);
   const searchConditions = searchKeys.map((key) => `${key} = ?`).join(" AND ");
 
-  const updateKeys = Object.keys(newValues);
-  const updateValues = Object.values(newValues);
+  const updateKeys = Object.keys(attributes);
+  const updateValues = Object.values(attributes);
   const updateStatements = updateKeys.map((key) => `${key} = ?`).join(", ");
 
   db.query(
