@@ -1,4 +1,4 @@
-# Bun.js-SQLite-Helper
+# bunJsSQLiteHelper
 This repository contains a Bun.js SQLite database helper module. It provides a set of functions to interact with SQLite databases, including setting up a new database, creating tables, inserting records, retrieving the last inserted ID, removing records, selecting records, and updating records.
 
 ## Features
@@ -22,7 +22,7 @@ This repository contains a Bun.js SQLite database helper module. It provides a s
 First, import the module:
 
 ```javascript
-import { setupDB, insert, createTable, getLastId, remove, select, update } from './main.js';
+import { setupDB, insert, createTable, getLastId, remove, select, update } from './bunJsSQLiteHelper.js';
 ```
 
 Then, you can use the functions as follows:
